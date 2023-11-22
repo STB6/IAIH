@@ -42,31 +42,24 @@ def evolve(gene_list):
         fitnesses = evaluate(gene_list)
         for ind, fit in zip(gene_list, fitnesses):
             ind.fitness.values = (fit,)
-
         # 选择
         selected = tools.selBest(gene_list, len(gene_list))
-
         # 克隆选中的个体
         offspring = list(map(toolbox.clone, selected))
-
         # 交叉和变异
         for child1, child2 in zip(offspring[::2], offspring[1::2]):
             if random.random() < CROSSOVER_PROB:
                 toolbox.mate(child1, child2)
                 del child1.fitness.values
                 del child2.fitness.values
-
         for mutant in offspring:
             if random.random() < MUTATION_PROB:
                 toolbox.mutate(mutant)
                 del mutant.fitness.values
-
         # 更新种群
         gene_list[:] = offspring
-
         # 输出当前代数
         print(f"Generation {generation + 1} completed")
-
     # 在最后一代结束时,按适应度对种群排序
     gene_list.sort(key=lambda ind: ind.fitness.values, reverse=True)
     return gene_list
