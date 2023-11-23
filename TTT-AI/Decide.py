@@ -1,6 +1,6 @@
 # 实现decide方法
 # 用于解码基因和实现AI决策
-# activation(x)         激活函数
+# activation(x)         ReLU激活函数
 # neural_network(...)   神经网络的前向传播
 # decode_gene(gene)     解码基因以获取神经网络的权重和偏置
 # decide(gene, board)   根据神经网络的输出和当前棋盘状态决定落子优先级

@@ -1,5 +1,7 @@
 # 实现play方法
 # 用于使玩家与AI对战
+# get_player_input()    处理玩家的输入内容
+# play(gene)            让传入的gene与玩家对弈
 from TTT import TTT
 from Decide import decide
 
