@@ -9,12 +9,13 @@
 # status()                  X赢返回1,O赢返回-1,和棋返回0,棋局未结束返回None
 class TTT:
     def __init__(self):
-        self.reset()
-
-    def reset(self):
         # 使用长度为9的列表来表示棋盘,X为1, O为-1, 空位为0
         self.board = [0] * 9
         self.steps = 1
+
+    def reset(self):
+        # 重置棋盘
+        self.__init__()
 
     def current_side(self):
         # 返回当前执子方
