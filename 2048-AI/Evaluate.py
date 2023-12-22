@@ -10,7 +10,8 @@ def evaluate(gene):
     while game.status():
         for i in decide(gene, game.board):
             if game.move(i):
+                game.add_tile()
                 break
         else:
             break
-    return game.max_tile(), game.score()
+    return game.score()

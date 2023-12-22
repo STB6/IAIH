@@ -3,13 +3,13 @@
 # activation(x)         ReLU激活函数
 # neural_network(...)   神经网络的前向传播
 # decode_gene(gene)     解码基因以获取神经网络的权重和偏置
-# decide(gene, board)   根据神经网络的输出和当前棋盘状态决定落子优先级
+# decide(gene, board)   根据神经网络的输出决定移动方向优先级
 import numpy as np
 
 # 全局常量
 INPUT_NODES = 16
-HIDDEN_NODES1 = 40
-HIDDEN_NODES2 = 40
+HIDDEN_NODES1 = 20
+HIDDEN_NODES2 = 20
 OUTPUT_NODES = 4
 
 
@@ -49,7 +49,7 @@ def decode_gene(gene):
 def decide(gene, board):
     # 根据神经网络的输出决定移动方向优先级
     weights1, biases1, weights2, biases2, output_weights, output_biases = decode_gene(gene)
-    output = neural_network(np.array(board), weights1, biases1, weights2, biases2, output_weights, output_biases)
+    output = neural_network(np.array(board).flatten(), weights1, biases1, weights2, biases2, output_weights, output_biases)
     # 将输出转换为一维数组,并获取降序排序的索引
     sorted_indices = np.argsort(output.flatten())[::-1]
     return sorted_indices.tolist()

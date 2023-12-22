@@ -114,4 +114,4 @@ class Game2048:
         return max(max(row) for row in self.board)
 
     def score(self):
-        return sum(sum(row) for row in self.board)
+        return sum(sum(row) for row in self.board) + self.max_tile()

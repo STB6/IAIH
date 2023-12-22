@@ -7,7 +7,14 @@ from deap import creator, base, tools
 from Evaluate import evaluate
 
 # 全局常量
-GENE_LENGTH = Decide.INPUT_NODES * Decide.HIDDEN_NODES1 + Decide.HIDDEN_NODES1 + Decide.HIDDEN_NODES1 * Decide.HIDDEN_NODES2 + Decide.HIDDEN_NODES2 + Decide.HIDDEN_NODES2 * Decide.OUTPUT_NODES + Decide.OUTPUT_NODES
+GENE_LENGTH = (
+    Decide.INPUT_NODES * Decide.HIDDEN_NODES1
+    + Decide.HIDDEN_NODES1
+    + Decide.HIDDEN_NODES1 * Decide.HIDDEN_NODES2
+    + Decide.HIDDEN_NODES2
+    + Decide.HIDDEN_NODES2 * Decide.OUTPUT_NODES
+    + Decide.OUTPUT_NODES
+)
 POPULATION_SIZE = 30  # 种群大小
 CROSSOVER_PROB = 0.5  # 交叉概率
 MUTATION_PROB = 0.2  # 变异概率
@@ -31,13 +38,13 @@ toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=MUTATION_AMPL
 toolbox.register("select", tools.selTournament, tournsize=3)
 
 
-# 定义生成种群的函数
 def generate():
+    # 生成随机种群
     return toolbox.population(POPULATION_SIZE)
 
 
-# 定义进化函数
 def evolve(gene_list):
+    # 遗传操作
     for generation in range(GENERATIONS):
         # 一次性计算整个种群的适应度
         fitnesses = evaluate(gene_list)
