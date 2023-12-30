@@ -14,4 +14,4 @@ def evaluate(gene):
                 break
         else:
             break
-    return game.score()
+    return 2 ** (game.score() / 200)

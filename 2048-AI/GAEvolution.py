@@ -8,10 +8,9 @@ from Evaluate import evaluate
 
 # 全局常量
 GENE_LENGTH = Decide.INPUT_NODES * Decide.HIDDEN_NODES1 + Decide.HIDDEN_NODES1 + Decide.HIDDEN_NODES1 * Decide.HIDDEN_NODES2 + Decide.HIDDEN_NODES2 + Decide.HIDDEN_NODES2 * Decide.OUTPUT_NODES + Decide.OUTPUT_NODES
-POPULATION_SIZE = 100  # 种群大小
-CROSSOVER_PROB = 0.5  # 交叉概率
-MUTATION_PROB = 0.2  # 变异概率
-MUTATION_AMPLITUDE = 0.1  # 变异幅度
+POPULATION_SIZE = 128  # 种群大小,应为4的倍数
+MUTATION_PROB = 0.1  # 变异概率
+MUTATION_AMPLITUDE = 0.05  # 变异幅度
 GENERATIONS = 200  # 代数
 
 
@@ -28,7 +27,7 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 # 注册交叉、变异和选择方法
 toolbox.register("mate", tools.cxTwoPoint)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=MUTATION_AMPLITUDE)
-toolbox.register("select", tools.selTournament, tournsize=3)
+toolbox.register("select", tools.selRoulette)
 
 
 def generate():
@@ -37,33 +36,31 @@ def generate():
 
 
 def evolve(gene_list):
-    # 进化指定代数
+    # 遗传操作
     for generation in range(GENERATIONS):
-        # 评估当前代的每个个体的适应度
-        for individual in gene_list:
-            individual.fitness.values = (evaluate(individual),)
-        # 选择下一代
-        offspring = toolbox.select(gene_list, len(gene_list))
-        # 克隆选出的个体
-        offspring = list(map(toolbox.clone, offspring))
+        # 评估当前适应度
+        for gene in gene_list:
+            gene.fitness.values = (evaluate(gene),)
 
-        # 应用交叉和变异
-        for child1, child2 in zip(offspring[::2], offspring[1::2]):
-            if random.random() < CROSSOVER_PROB:
-                toolbox.mate(child1, child2)
-                del child1.fitness.values
-                del child2.fitness.values
+        # 选择
+        gene_list = toolbox.select(gene_list, POPULATION_SIZE // 2)
 
-        for mutant in offspring:
+        # 交叉
+        for gene1, gene2 in zip(gene_list[::2], gene_list[1::2]):
+            gene_list.append(creator.Individual(gene1))
+            gene_list.append(creator.Individual(gene2))
+            toolbox.mate(gene_list[-1], gene_list[-2])
+
+        # 变异
+        for gene in gene_list:
             if random.random() < MUTATION_PROB:
-                toolbox.mutate(mutant)
-                del mutant.fitness.values
+                toolbox.mutate(gene)
+                del gene.fitness.values
 
         # 评估产生的变异个体的适应度
-        for mutant in offspring:
-            if not mutant.fitness.valid:
-                mutant.fitness.values = (evaluate(mutant),)
-        gene_list[:] = offspring
+        for gene in gene_list:
+            if not gene.fitness.valid:
+                gene.fitness.values = (evaluate(gene),)
         fittest_individual = max(gene_list, key=lambda x: x.fitness.values[0])
         print(f"Generation {generation + 1} completed. Fittest individual fitness: {fittest_individual.fitness.values[0]}")
     # 按适应度对最后一代进行排序
