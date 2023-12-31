@@ -15,12 +15,12 @@ class Game2048:
         self.add_tile()
         self.add_tile()
 
+    # 重置棋盘
     def reset(self):
-        # 重置棋盘
         self.__init__()
 
+    # 随机添加数字
     def add_tile(self):
-        # 随机添加数字
         empty_positions = [(i, j) for i in range(4) for j in range(4) if self.board[i][j] == 0]
         if empty_positions:
             r, c = random.choice(empty_positions)
@@ -28,15 +28,15 @@ class Game2048:
             return True
         return False
 
+    # 打印棋盘
     def print_board(self):
-        # 打印棋盘
         for i in range(4):
             row_str = " ".join([f"{str(self.board[i][j]):^4}" for j in range(4)])
             print(f"{row_str}")
             print()
 
+    # 向左压缩棋盘
     def compress(self):
-        # 向左压缩棋盘
         compressed = False
         for i in range(4):
             pos = 0
@@ -49,8 +49,8 @@ class Game2048:
                     pos += 1
         return compressed
 
+    # 合并相邻相同的数字
     def merge(self):
-        # 合并相邻相同的数字
         merged = False
         for i in range(4):
             for j in range(3):
@@ -60,12 +60,12 @@ class Game2048:
                     merged = True
         return merged
 
+    # 左右反转棋盘
     def reverse(self):
-        # 左右反转棋盘
         self.board = [row[::-1] for row in self.board]
 
+    # 转置棋盘
     def transpose(self):
-        # 转置棋盘
         self.board = [list(row) for row in zip(*self.board)]
 
     def move_left(self):

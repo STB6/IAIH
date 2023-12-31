@@ -1,22 +1,22 @@
 # 实现遗传算法
 # generate()    生成随机种群,返回gene_list
-# evolve()      遗传操作,将最后一代gene_list按照适应度从高到低排序后返回
+# evolve()      遗传进化操作
 import random
 import Decide
+import concurrent.futures
 from deap import creator, base, tools
 from Evaluate import evaluate
 
 # 全局常量
 GENE_LENGTH = Decide.INPUT_NODES * Decide.HIDDEN_NODES1 + Decide.HIDDEN_NODES1 + Decide.HIDDEN_NODES1 * Decide.HIDDEN_NODES2 + Decide.HIDDEN_NODES2 + Decide.HIDDEN_NODES2 * Decide.OUTPUT_NODES + Decide.OUTPUT_NODES
-POPULATION_SIZE = 128  # 种群大小,应为4的倍数
-MUTATION_PROB = 0.1  # 变异概率
-MUTATION_AMPLITUDE = 0.05  # 变异幅度
-GENERATIONS = 200  # 代数
+POPULATION_SIZE = 256  # 种群大小,应为8的倍数
+MUTATION_AMPLITUDE = 0.1  # 变异幅度
+GENERATIONS = 1000  # 代数
 
 
 # 创建适应度类和个体类
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-creator.create("Individual", list, fitness=creator.FitnessMax)
+creator.create("Individual", list, fitness=creator.FitnessMax, max_tile_average=float, max_tile=int)
 
 # 设置工具箱
 toolbox = base.Toolbox()
@@ -30,39 +30,72 @@ toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=MUTATION_AMPL
 toolbox.register("select", tools.selRoulette)
 
 
+# 生成随机种群
 def generate():
-    # 生成随机种群
-    return toolbox.population(POPULATION_SIZE)
+    gene_list = toolbox.population(POPULATION_SIZE)
+
+    # 尝试读取上一次的最优个体
+    try:
+        with open("best_gene.txt", "r") as f:
+            gene_list[0] = creator.Individual(eval(f.read()))
+            print("Last best gene loaded.")
+    except FileNotFoundError:
+        print("Start from scratch.")
+
+    # 评估当前适应度
+    for gene in gene_list:
+        gene.fitness.values, gene.max_tile_average, gene.max_tile = evaluate(gene)
+
+    # 按适应度对种群进行排序
+    gene_list.sort(key=lambda x: x.fitness.values, reverse=True)
+
+    return gene_list
 
 
+# 遗传进化操作
 def evolve(gene_list):
-    # 遗传操作
     for generation in range(GENERATIONS):
-        # 评估当前适应度
-        for gene in gene_list:
-            gene.fitness.values = (evaluate(gene),)
-
         # 选择
-        gene_list = toolbox.select(gene_list, POPULATION_SIZE // 2)
+        gene_list[POPULATION_SIZE // 8 : POPULATION_SIZE // 2] = toolbox.select(gene_list[POPULATION_SIZE // 8 : POPULATION_SIZE // 8 * 7], POPULATION_SIZE // 2 - POPULATION_SIZE // 8)
+        gene_to_be_mutated = gene_list[: POPULATION_SIZE // 4]
+        del gene_list[POPULATION_SIZE // 2 :]
 
         # 交叉
-        for gene1, gene2 in zip(gene_list[::2], gene_list[1::2]):
-            gene_list.append(creator.Individual(gene1))
-            gene_list.append(creator.Individual(gene2))
+        random.shuffle(gene_list)
+        for i in range(0, POPULATION_SIZE // 4, 2):
+            gene_list.append(creator.Individual(gene_list[i]))
+            gene_list.append(creator.Individual(gene_list[i + 1]))
             toolbox.mate(gene_list[-1], gene_list[-2])
 
         # 变异
-        for gene in gene_list:
-            if random.random() < MUTATION_PROB:
-                toolbox.mutate(gene)
-                del gene.fitness.values
+        for gene in gene_to_be_mutated:
+            gene_list.append(creator.Individual(gene))
+            toolbox.mutate(gene_list[-1])
 
-        # 评估产生的变异个体的适应度
-        for gene in gene_list:
-            if not gene.fitness.valid:
-                gene.fitness.values = (evaluate(gene),)
-        fittest_individual = max(gene_list, key=lambda x: x.fitness.values[0])
-        print(f"Generation {generation + 1} completed. Fittest individual fitness: {fittest_individual.fitness.values[0]}")
-    # 按适应度对最后一代进行排序
-    gene_list.sort(key=lambda x: x.fitness.values, reverse=True)
-    return gene_list
+        # 评估当前适应度
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            results = list(executor.map(evaluate, gene_list))
+        for gene, result in zip(gene_list, results):
+            gene.fitness.values, gene.max_tile_average, gene.max_tile = result
+
+        # 按适应度对种群进行排序
+        gene_list.sort(key=lambda x: x.fitness.values, reverse=True)
+
+        # 信息输出
+        print(f"Generation {generation + 1} finished. Best 9 genes:")
+        print("fn\tmta\tmt")
+        for gene in gene_list[:9]:
+            print(f"{gene.fitness.values[0]:.2f}\t{gene.max_tile_average:.2f}\t{gene.max_tile}")
+        if generation % 10 == 9:
+            with open("best_gene.txt", "w") as f:
+                f.write(str(gene_list[0]))
+            print("Best gene saved.")
+
+
+def main():
+    gene_list = generate()
+    evolve(gene_list)
+
+
+if __name__ == "__main__":
+    main()

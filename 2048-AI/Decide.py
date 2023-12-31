@@ -13,13 +13,13 @@ HIDDEN_NODES2 = 20
 OUTPUT_NODES = 4
 
 
+# ReLU激活函数
 def activation(x):
-    # ReLU激活函数
     return np.maximum(0, x)
 
 
+# 神经网络的前向传播
 def neural_network(input, weights1, biases1, weights2, biases2, output_weights, output_biases):
-    # 神经网络的前向传播
     # 隐藏层1
     hidden_layer1_input = np.dot(input, weights1) + biases1
     hidden_layer1_output = activation(hidden_layer1_input)
@@ -32,8 +32,8 @@ def neural_network(input, weights1, biases1, weights2, biases2, output_weights, 
     return output_layer_output
 
 
+# 解码权重和偏置
 def decode_gene(gene):
-    # 解码权重和偏置
     # 隐藏层1
     weights1 = np.array(gene[: INPUT_NODES * HIDDEN_NODES1]).reshape(INPUT_NODES, HIDDEN_NODES1)
     biases1 = np.array(gene[INPUT_NODES * HIDDEN_NODES1 : INPUT_NODES * HIDDEN_NODES1 + HIDDEN_NODES1])
@@ -46,8 +46,8 @@ def decode_gene(gene):
     return weights1, biases1, weights2, biases2, output_weights, output_biases
 
 
+# 根据神经网络的输出决定移动方向优先级
 def decide(gene, board):
-    # 根据神经网络的输出决定移动方向优先级
     weights1, biases1, weights2, biases2, output_weights, output_biases = decode_gene(gene)
     output = neural_network(np.array(board).flatten(), weights1, biases1, weights2, biases2, output_weights, output_biases)
     # 将输出转换为一维数组,并获取降序排序的索引
