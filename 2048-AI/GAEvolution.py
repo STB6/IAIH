@@ -9,14 +9,14 @@ from Evaluate import evaluate
 
 # 全局常量
 GENE_LENGTH = Decide.INPUT_NODES * Decide.HIDDEN_NODES1 + Decide.HIDDEN_NODES1 + Decide.HIDDEN_NODES1 * Decide.HIDDEN_NODES2 + Decide.HIDDEN_NODES2 + Decide.HIDDEN_NODES2 * Decide.OUTPUT_NODES + Decide.OUTPUT_NODES
-POPULATION_SIZE = 256  # 种群大小,应为8的倍数
-MUTATION_AMPLITUDE = 0.1  # 变异幅度
+POPULATION_SIZE = 160  # 种群大小,应为8的倍数
+MUTATION_AMPLITUDE = 0.15  # 变异幅度
 GENERATIONS = 1000  # 代数
 
 
 # 创建适应度类和个体类
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-creator.create("Individual", list, fitness=creator.FitnessMax, max_tile_average=float, max_tile=int)
+creator.create("Individual", list, fitness=creator.FitnessMax, information=list)
 
 # 设置工具箱
 toolbox = base.Toolbox()
@@ -43,8 +43,10 @@ def generate():
         print("Start from scratch.")
 
     # 评估当前适应度
-    for gene in gene_list:
-        gene.fitness.values, gene.max_tile_average, gene.max_tile = evaluate(gene)
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        results = list(executor.map(evaluate, gene_list))
+    for gene, result in zip(gene_list, results):
+        gene.fitness.values, gene.information = result
 
     # 按适应度对种群进行排序
     gene_list.sort(key=lambda x: x.fitness.values, reverse=True)
@@ -76,16 +78,16 @@ def evolve(gene_list):
         with concurrent.futures.ProcessPoolExecutor() as executor:
             results = list(executor.map(evaluate, gene_list))
         for gene, result in zip(gene_list, results):
-            gene.fitness.values, gene.max_tile_average, gene.max_tile = result
+            gene.fitness.values, gene.information = result
 
         # 按适应度对种群进行排序
         gene_list.sort(key=lambda x: x.fitness.values, reverse=True)
 
         # 信息输出
-        print(f"Generation {generation + 1} finished. Best 9 genes:")
-        print("fn\tmta\tmt")
-        for gene in gene_list[:9]:
-            print(f"{gene.fitness.values[0]:.2f}\t{gene.max_tile_average:.2f}\t{gene.max_tile}")
+        print(f"Generation {generation + 1} finished. Best 16 genes:")
+        print("fn\t64\t128\t256\t512\t1024\t2048")
+        for gene in gene_list[:16]:
+            print(f"{round(gene.fitness.values[0], 2)}\t" + "\t".join(str(gene.information[i]) for i in [4, 5, 6, 7, 8, 9]))
         if generation % 10 == 9:
             with open("best_gene.txt", "w") as f:
                 f.write(str(gene_list[0]))

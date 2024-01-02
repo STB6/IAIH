@@ -3,7 +3,6 @@
 # add_tile()        随机添加数字
 # print_board()     打印棋盘
 # move(dirction)    向左/右/上/下移动
-# status()          胜利返回0,其他状态返回1
 # max_tile()        返回当前最大数字
 # score()           返回当前分数
 import random
@@ -102,13 +101,6 @@ class Game2048:
             return self.move_up()
         else:
             return self.move_down()
-
-    def status(self):
-        for i in range(4):
-            for j in range(4):
-                if self.board[i][j] == 2048:
-                    return 0  # 胜利
-        return 1  # 其他状态
 
     def max_tile(self):
         return max(max(row) for row in self.board)
