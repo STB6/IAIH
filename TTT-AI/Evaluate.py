@@ -6,8 +6,8 @@ from Decide import decide
 from TTT import TTT
 
 
+# 实现两个AI对战
 def battle(gene1, gene2):
-    # 实现两个AI对战
     game = TTT()
     score1, score2 = 0, 0
     while game.status() is None:
@@ -17,14 +17,14 @@ def battle(gene1, gene2):
         game.ai_place(priority_list)
     status = game.status()
     if status == 1:
-        score1 += 2  # gene1胜利(先手),加2分
+        score1 += 1  # gene1胜利(先手),加1分
     elif status == -1:
-        score2 += 3  # gene2胜利(后手),加3分
+        score2 += 2  # gene2胜利(后手),加2分
     return score1, score2
 
 
+# 种群适应度评估函数
 def evaluate(gene_list):
-    # 适应度评估方法
     num_genes = len(gene_list)
     scores = [0] * num_genes
     for i in range(num_genes):
@@ -33,4 +33,5 @@ def evaluate(gene_list):
                 result = battle(gene_list[i], gene_list[j])
                 scores[i] += result[0]
                 scores[j] += result[1]
-    return scores
+    for gene, score in zip(gene_list, scores):
+        gene.fitness.values = (score,)

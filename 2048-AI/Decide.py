@@ -1,20 +1,18 @@
 # 实现decide方法
 # 用于解码基因和实现AI决策
-# activation(x)         ReLU激活函数
 # neural_network(...)   神经网络的前向传播
 # decode_gene(gene)     解码基因以获取神经网络的权重和偏置
 # decide(gene, board)   根据神经网络的输出决定移动方向优先级
 import numpy as np
 
-# 全局常量
+
 INPUT_NODES = 16
-HIDDEN_NODES1 = 20
-HIDDEN_NODES2 = 20
+HIDDEN_NODES1 = 16
+HIDDEN_NODES2 = 8
 OUTPUT_NODES = 4
 
 
-# ReLU激活函数
-def activation(x):
+def ReLU(x):
     return np.maximum(0, x)
 
 
@@ -22,13 +20,13 @@ def activation(x):
 def neural_network(input, weights1, biases1, weights2, biases2, output_weights, output_biases):
     # 隐藏层1
     hidden_layer1_input = np.dot(input, weights1) + biases1
-    hidden_layer1_output = activation(hidden_layer1_input)
+    hidden_layer1_output = ReLU(hidden_layer1_input)
     # 隐藏层2
     hidden_layer2_input = np.dot(hidden_layer1_output, weights2) + biases2
-    hidden_layer2_output = activation(hidden_layer2_input)
+    hidden_layer2_output = ReLU(hidden_layer2_input)
     # 输出层
     output_layer_input = np.dot(hidden_layer2_output, output_weights) + output_biases
-    output_layer_output = activation(output_layer_input)
+    output_layer_output = ReLU(output_layer_input)
     return output_layer_output
 
 

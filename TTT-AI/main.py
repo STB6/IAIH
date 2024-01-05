@@ -1,15 +1,36 @@
-from GAEvolution import generate, evolve
+from GAEvolution import *
 from Play import play
+
+GENERATIONS = 100  # 遗传代数
 
 
 def main():
-    # 生成随机种群
-    population = generate()
-    # 遗传进化
-    evolved_population = evolve(population)
-    # 让最后一代的最优AI与玩家对战
-    best_individual = evolved_population[0]
-    play(best_individual)
+    while True:
+        answer = input("Start from last generation? (Y/N)")
+        if answer == "Y":
+            try:
+                gene_list = load()
+            except Exception:
+                print("Loading failed.")
+                print("Start from scratch.")
+                gene_list = generate()
+            break
+        elif answer == "N":
+            print("Start from scratch.")
+            gene_list = generate()
+            break
+        else:
+            print("Invalid input.")
+
+    for genegration in range(GENERATIONS):
+        evolve(gene_list)
+        if genegration % 10 != 9:
+            print(f"Generation {genegration + 1} finished.")
+        else:
+            save(gene_list)
+            print(f"Generation {genegration + 1} finished and saved.")
+    print("Evolution finished.")
+    play([0])
 
 
 if __name__ == "__main__":
