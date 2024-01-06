@@ -68,14 +68,14 @@ def evolve(gene_list):
 
 
 def save(gene_list):
-    with open("./2048-AI/gene_list.txt", "w") as file:
+    with open("./2048-AI/last_generation.txt", "w") as file:
         for gene in gene_list:
             file.write(str(gene) + "\n")
 
 
 def load():
     gene_list = []
-    with open("./2048-AI/gene_list.txt", "r") as file:
+    with open("./2048-AI/last_generation.txt", "r") as file:
         for line in file:
             gene_list.append(creator.Individual(eval(line)))
     evaluate(gene_list)
