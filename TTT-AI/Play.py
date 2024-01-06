@@ -4,6 +4,7 @@
 # play(gene)            让传入的gene与玩家对弈
 from TTT import TTT
 from Decide import decide
+from GAEvolution import load
 
 
 def get_player_input():
@@ -44,3 +45,12 @@ def play(gene):
         else:
             print("AI胜利")
         print("开始新对局")
+
+
+if __name__ == "__main__":
+    try:
+        gene_list = load()
+    except Exception:
+        print("Loading failed.")
+        exit()
+    play(gene_list[0])
