@@ -1,6 +1,6 @@
 from GAEvolution import *
 
-GENERATIONS = 10000  # 遗传代数
+GENERATIONS = 1000  # 遗传代数
 
 
 def main():

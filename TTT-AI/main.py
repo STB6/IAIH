@@ -1,7 +1,7 @@
 from GAEvolution import *
 from Play import play
 
-GENERATIONS = 100  # 遗传代数
+GENERATIONS = 1000  # 遗传代数
 
 
 def main():
