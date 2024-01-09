@@ -6,7 +6,7 @@ GENERATIONS = 1000  # 遗传代数
 
 def main():
     while True:
-        answer = input("Start from last generation? (Y/N)")
+        answer = input("Start from last generation? (Y/N) ")
         if answer == "Y":
             try:
                 gene_list = load()

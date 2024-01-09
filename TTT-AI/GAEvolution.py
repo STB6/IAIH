@@ -2,6 +2,7 @@
 # generate()    生成随机种群,返回gene_list
 # evolve()      遗传进化操作
 import random
+import os
 import Decide
 from deap import creator, base, tools
 from Evaluate import evaluate
@@ -68,14 +69,14 @@ def evolve(gene_list):
 
 
 def save(gene_list):
-    with open("./TTT-AI/last_generation.txt", "w") as file:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "last_generation.txt"), "w") as file:
         for gene in gene_list:
             file.write(str(gene) + "\n")
 
 
 def load():
     gene_list = []
-    with open("./TTT-AI/last_generation.txt", "r") as file:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "last_generation.txt"), "r") as file:
         for line in file:
             gene_list.append(creator.Individual(eval(line)))
     evaluate(gene_list)
